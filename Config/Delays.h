@@ -27,7 +27,9 @@
 #define PokemonSV_CLOSE_BOX_DELAY 244
 #define PokemonSV_CHANGE_SELECTION_MODE_DELAY 30
 #define PokemonSV_CHANGE_BOX_DELAY 61
-#define PokemonSV_PUT_AWAY_HELD_ITEM_DELAY 40
+#define PokemonSV_PUT_AWAY_HELD_ITEM_DELAY 60
+
+#define PokemonSV_OPEN_MENU_DELAY 122
 
 
 
