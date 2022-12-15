@@ -1,6 +1,31 @@
 #include "../../Config/Controller.h"
 
-#define NUMBER_OF_DUPLICATIONS_BETWEEN_RECOVERY 50
+#define NUMBER_OF_DUPLICATIONS_BETWEEN_RECOVERY 25
+
+// 21 * BUTTON_PRESS_DURATION                       420
+// 2 * PokemonSV_SELECT_POKEMON_DELAY               244
+// 10 * PokemonSV_NAVIGATION_DELAY                  200
+// 1 * PokemonSV_RETURN_TO_RIDE_DELAY               122
+// 1 * PokemonSV_SPWAN_POPUP_DELAY                   61
+// 1 * PokemonSV_READY_TO_TRAVEL_DELAY              300
+// 1 * PokemonSV_OPEN_BOX_DELAY                     244
+// 2 * PokemonSV_CHANGE_SELECTION_MODE_DELAY         60
+// 1 * PokemonSV_CHANGE_BOX_DELAY                    61
+// 1 * PokemonSV_PUT_AWAY_HELD_ITEM_DELAY            60
+// 1 * PokemonSV_CLOSE_BOX_DELAY                    244
+//---------------------------------------------------------------------------------
+//                                                  2016 ticks per item duplication
+//                                                  8.26 seconds for each item
+
+// loop                                             488
+// 4 * PokemonSV_NAVIGATION_DELAY                    80
+// 3 * BUTTON_PRESS_DURATION                         60
+// HOLD UP                                          488
+// 1 * PokemonSV_OPEN_MENU_DELAY                    122
+//----------------------------------------------------------------------------------
+//                                                 1238 ticks per recovery
+//                                                    5 seconds for each recovery sequence
+
 
 void recover_menu_state(void)
 {
