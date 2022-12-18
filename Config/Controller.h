@@ -135,6 +135,4 @@ void controller_move_and_release_stick_r(uint8_t x, uint8_t y, uint16_t duration
 
 void controller_init(void);
 
-
-
 #endif
