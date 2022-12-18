@@ -1,79 +1,106 @@
 #include "../../Config/Controller.h"
 
-#define DELAY1 122 // picnic popup delay
-#define DELAY2 732 // open sandwich menu delay
-
-#define DELAY3 40 // select sandwich delay
-
-#define DELAY4 900 // selected all ingredients
-
-#define FINISHED_SANDWICH_DELAY 2000
-#define SANDWICH_EAT_ANIMATION_DELAY 3600
-
-#define STICK_INGREDIENT_HOLD 135
+uint16_t five_minute_timer = 0;
+uint8_t thirty_minute_timer = 0;
+int shouldCollectEggs = 0;
+int shouldMakeSandwich = 1;
+ISR(TIMER1_OVF_vect)
+{
+    // TIMER interrupt:
+    // 16,000,000Hz/((2^16)*1024) = 0.2384185791Hz
+    // 4.194304s between each interrupt
+    if (five_minute_timer < 71)
+    {
+        five_minute_timer++;
+    }
+    else
+    {
+        five_minute_timer = 0;
+        thirty_minute_timer++;
+        shouldCollectEggs = 1;
+    }
+    if (thirty_minute_timer >= 6)
+    {
+        thirty_minute_timer = 0;
+        shouldMakeSandwich = 1;
+    }
+}
 
 void make_sandwich(void)
 {
+    shouldMakeSandwich = 0;
     controller_init();
     // turn to table
-    controller_move_and_release_stick_l(STICK_CENTER, STICK_CENTER - 20, 10, PokemonSV_NAVIGATION_DELAY);
+    controller_move_and_release_stick_l(STICK_CENTER, PokemonSV_PICNIC_TURN_POSITION_UP, PokemonSV_PICNIC_TURN_HOLD_DURATION, PokemonSV_TURN_AROUND_DELAY);
 
     // open sandwich menu
-    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, DELAY1);
-    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, DELAY2);
+    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_PICNIC_TABLE_INTERACTION_DELAY);
+    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_OPEN_SANDWICH_MENU_DELAY);
     // navigate to "Great Peanut Butter Sandwich"
     controller_press_and_release_dpad(DPAD_DOWN, BUTTON_PRESS_DURATION, PokemonSV_NAVIGATION_DELAY);
     // select sandwich
-    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, DELAY3);
+    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_SELECT_SANDWICH_DELAY);
     // select pick
-    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, DELAY4);
+    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_START_SANDWICH_MINIGAME_DELAY);
 
     // place banana
-    controller_move_and_release_stick_l(STICK_CENTER, 64, 20, 0);
+    controller_move_and_release_stick_l(STICK_CENTER, PokemonSV_SANDWICH_STICK_POSITION_UP, PokemonSV_SANDWICH_INITIAL_STICK_HOLD_DURATION, 0);
     for (int i = 0; i < 3; i++)
     {
-        controller_move_and_release_stick_l(STICK_CENTER, 64, STICK_INGREDIENT_HOLD, 50);
+        controller_move_and_release_stick_l(STICK_CENTER, PokemonSV_SANDWICH_STICK_POSITION_UP, PokemonSV_SANDWICH_STICK_HOLD_DURATION, PokemonSV_SANDWICH_MOVE_HAND_DELAY);
         controller_press_button(BUTTON_A);
-        controller_move_and_release_stick_l(STICK_CENTER, STICK_MAX - 64, STICK_INGREDIENT_HOLD, 50);
+        controller_move_and_release_stick_l(STICK_CENTER, PokemonSV_SANDWICH_STICK_POSITION_DOWN, PokemonSV_SANDWICH_STICK_HOLD_DURATION, PokemonSV_SANDWICH_MOVE_HAND_DELAY);
         controller_release_button(BUTTON_A);
-        controller_wait(50);
+        controller_wait(PokemonSV_SANDWICH_MOVE_HAND_DELAY);
     }
     controller_init();
-    controller_wait(244);
-    // place bun 
-    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, 488);
+    controller_wait(PokemonSV_READY_TO_PLACE_BUN_DELAY);
+    // place bun
+    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_PLACE_BUN_DELAY);
     // place pick
-    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, FINISHED_SANDWICH_DELAY);
+    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_SANDWICH_DISPLAY_ANIMATION_DELAY);
     // finished sandwich animation, press a
-    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, SANDWICH_EAT_ANIMATION_DELAY);
+    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_SANDWICH_EAT_ANIMATION_DELAY);
     // finished eat animation, press a
-    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, 244);
-    //turn to basket again
-    controller_move_and_release_stick_l(STICK_CENTER, STICK_CENTER + 20, 10, PokemonSV_NAVIGATION_DELAY);
+    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_CLOSE_SANDWICH_MINIGAME_DELAY);
+    // turn to basket
+    controller_move_and_release_stick_l(STICK_CENTER, PokemonSV_PICNIC_TURN_POSITION_DOWN, PokemonSV_PICNIC_TURN_HOLD_DURATION, PokemonSV_TURN_AROUND_DELAY);
+}
+
+void collect_eggs(void)
+{
+    shouldCollectEggs = 0;
+    controller_init();
+    // interact with basket
+    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, BUTTON_PRESS_DURATION);
+    for (uint16_t i = 0; i < 3660; i++)
+    {
+        controller_press_and_release_button(BUTTON_B, 1, 1);
+    }
 }
 
 int main(void)
 {
     SetupHardware();
-    TIMSK1 |= (1 << TOIE1); // setup 16-bit timer to overflow interrupt mode
-    TCCR1B |= (1 << CS10);
-    DDRD |= (1 << 5); // set port PIN D5 to output
+    TIMSK1 |= (1 << TOIE1);              // setup 16-bit timer to overflow interrupt mode
+    TCCR1B |= (1 << CS12) | (1 << CS10); // pre-scalar to 1024
     sei();
     connect_and_return_to_home();
     controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_STARTUP_DELAY);
 
     while (1)
     {
-        make_sandwich();
-    }
-}
-
-int timer1counter = 0;
-ISR(TIMER1_OVF_vect)
-{
-    if (++timer1counter > 122)
-    {
-        //PORTD ^= (1 << 5);
-        timer1counter = 0;
+        if (shouldCollectEggs)
+        {
+            collect_eggs();
+        }
+        else if (shouldMakeSandwich)
+        {
+            make_sandwich();
+        }
+        else
+        {
+            controller_wait(1);
+        }
     }
 }
