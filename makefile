@@ -18,16 +18,16 @@
 # to write your own bot, create a folder (containing a file with the same name and .c extension) and change the
 # PROGRAMM_NAME variable to your programm name
 
-PROGRAMM_NAME = PokemonSV_EggGenerator
+PROGRAMM_NAME = PokemonSV_ItemDuplication
 MCU          = atmega32u4
 ARCH         = AVR8
 F_CPU        = 16000000
 F_USB        = $(F_CPU)
 OPTIMIZATION = s
 TARGET       = ./Bots/$(PROGRAMM_NAME)/$(PROGRAMM_NAME)
-SRC          = $(TARGET).c ./Config/Descriptors.c ./Config/Controller.c $(LUFA_SRC_USB)
+SRC          = $(TARGET).c ./Framework/Descriptors.c ./Framework/Controller.c $(LUFA_SRC_USB)
 LUFA_PATH    = ./LUFA
-CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -IConfig/
+CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -IFramework/
 LD_FLAGS     =
 
 # Default target

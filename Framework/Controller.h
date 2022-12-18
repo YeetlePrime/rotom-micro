@@ -28,8 +28,8 @@
   this software.
 */
 
-#ifndef _CONFIG_CONTROLLER_H_
-#define _CONFIG_CONTROLLER_H_
+#ifndef _FRAMEWORK_CONTROLLER_H_
+#define _FRAMEWORK_CONTROLLER_H_
 
 /* Includes: */
 #include <avr/io.h>
@@ -46,8 +46,9 @@
 #include <LUFA/Platform/Platform.h>
 
 #include "Descriptors.h"
-#include "Delays.h"
-#include "Config.h"
+#include "LED.h"
+#include "../Config/Delays.h"
+#include "../Config/Config.h"
 
 // Type Defines
 // Enumeration for buttons.
