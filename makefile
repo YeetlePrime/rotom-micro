@@ -18,7 +18,7 @@
 # to write your own bot, create a folder (containing a file with the same name and .c extension) and change the
 # PROGRAMM_NAME variable to your programm name
 
-PROGRAMM_NAME = PokemonSV_ItemDuplication
+PROGRAMM_NAME = PokemonSV_EggGenerator
 MCU          = atmega32u4
 ARCH         = AVR8
 F_CPU        = 16000000
