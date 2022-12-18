@@ -90,9 +90,9 @@ int main(void)
 
     // start pokemonsv
     connect_and_return_to_home();
+    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_STARTUP_DELAY);
 
     // Once that's done, we'll enter an infinite loop.
-    controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_STARTUP_DELAY);
     while (1)
     {
         recover_menu_state();
