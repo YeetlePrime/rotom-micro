@@ -47,6 +47,7 @@
 
 #include "Descriptors.h"
 #include "Delays.h"
+#include "Config.h"
 
 // Type Defines
 // Enumeration for buttons.
@@ -121,11 +122,19 @@ void controller_release_button(uint16_t button);
 void controller_wait(uint16_t duration);
 
 void controller_set_dpad(uint8_t dpad);
+
+void controller_set_stick_position_l(uint8_t x, uint8_t y);
+void controller_set_stick_position_r(uint8_t x, uint8_t y);
+
 void connect_and_return_to_home(void);
 
 void controller_press_and_release_button(uint16_t button, uint16_t duration, uint16_t release);
 void controller_press_and_release_dpad(uint8_t dpad, uint16_t duration, uint16_t release);
+void controller_move_and_release_stick_l(uint8_t x, uint8_t y, uint16_t duration, uint16_t release);
+void controller_move_and_release_stick_r(uint8_t x, uint8_t y, uint16_t duration, uint16_t release);
 
 void controller_init(void);
+
+
 
 #endif

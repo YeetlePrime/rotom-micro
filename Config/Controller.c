@@ -1,9 +1,9 @@
 /*
-			 LUFA Library
-	 Copyright (C) Dean Camera, 2014.
+             LUFA Library
+     Copyright (C) Dean Camera, 2014.
 
   dean [at] fourwalledcubicle [dot] com
-		   www.lufa-lib.org
+           www.lufa-lib.org
 */
 
 /*
@@ -19,10 +19,10 @@ subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS 
-OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
+OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
@@ -44,7 +44,11 @@ void SetupHardware(void)
     TCCR0B |= (1 << CS02);  // prescaler 256
     TIMSK0 |= (1 << TOIE0); // overflow interrupt
 
-    DDRB |= 1; // RXLED on output mode
+    LED1_ENABLE_OUTPUT_MODE;
+    LED1_OFF;
+
+    LED2_ENABLE_OUTPUT_MODE;
+    LED2_OFF;
 
     // init controller
     controller_init();
@@ -100,6 +104,23 @@ void controller_release_button(uint16_t button)
 // transmit the current inputreport for "duration" ticks
 void controller_wait(uint16_t duration)
 {
+    if (MODE_LED1 == MODE_FLASH_ON_BUTTON_PRESS) {
+        if (InputReport.Button || InputReport.DPAD != DPAD_NONE) {LED1_ON;}
+        else {LED1_OFF;}
+    }
+    if (MODE_LED2 == MODE_FLASH_ON_BUTTON_PRESS){
+        if(InputReport.Button || InputReport.DPAD != DPAD_NONE) {LED2_ON;}
+        else {LED2_OFF;}
+    }
+    if (MODE_LED1 == MODE_FLASH_ON_A_PRESS) {
+        if(InputReport.Button &BUTTON_A) {LED1_ON;}
+        else {LED1_OFF;}
+    }
+    if (MODE_LED2 == MODE_FLASH_ON_A_PRESS){
+        if(InputReport.Button &BUTTON_A) {LED2_ON;}
+        else {LED2_OFF;}
+    }
+
     int i = 0;
     while (i < duration)
     {
@@ -151,9 +172,22 @@ void controller_set_dpad(uint8_t dpad)
     InputReport.DPAD = dpad;
 }
 
+void controller_set_stick_position_l(uint8_t x, uint8_t y)
+{
+    InputReport.LX = x;
+    InputReport.LY = y;
+}
+
+void controller_set_stick_position_r(uint8_t x, uint8_t y)
+{
+    InputReport.RX = x;
+    InputReport.RY = y;
+}
+
 // in grip menu: connect controller and go to home screen
 void connect_and_return_to_home(void)
 {
+    controller_init();
     controller_wait(STARTUP_WAIT_DELAY);
 
     controller_press_button(BUTTON_L);
@@ -169,6 +203,7 @@ void connect_and_return_to_home(void)
 // press button for "duration" ticks and release it for "release" ticks
 void controller_press_and_release_button(uint16_t button, uint16_t duration, uint16_t release)
 {
+
     controller_press_button(button);
     controller_wait(duration);
     controller_release_button(button);
@@ -178,11 +213,25 @@ void controller_press_and_release_button(uint16_t button, uint16_t duration, uin
 // press dpad for "duration" ticks and release it for "release" ticks
 void controller_press_and_release_dpad(uint8_t dpad, uint16_t duration, uint16_t release)
 {
-    controller_init();
-
     controller_set_dpad(dpad);
     controller_wait(duration);
     controller_set_dpad(DPAD_NONE);
+    controller_wait(release);
+}
+
+void controller_move_and_release_stick_l(uint8_t x, uint8_t y, uint16_t duration, uint16_t release)
+{
+    controller_set_stick_position_l(x, y);
+    controller_wait(duration);
+    controller_set_stick_position_l(STICK_CENTER, STICK_CENTER);
+    controller_wait(release);
+}
+
+void controller_move_and_release_stick_r(uint8_t x, uint8_t y, uint16_t duration, uint16_t release)
+{
+    controller_set_stick_position_r(x, y);
+    controller_wait(duration);
+    controller_set_stick_position_r(STICK_CENTER, STICK_CENTER);
     controller_wait(release);
 }
 
@@ -213,7 +262,11 @@ ISR(TIMER0_OVF_vect)
     // 1 second interval (.5seconds on, .5 seconds off)
     if (++counter > 122)
     {
-        PORTB ^= 1;
+        if (MODE_LED1 == MODE_BLINKING_ONE_SEC)
+            LED1_TOGGLE;
+        if (MODE_LED2 == MODE_BLINKING_ONE_SEC)
+            LED2_TOGGLE;
+        
         counter = 0;
     }
 }
