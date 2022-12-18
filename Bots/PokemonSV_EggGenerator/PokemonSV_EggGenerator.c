@@ -3,28 +3,8 @@
 uint16_t five_minute_timer = 0;
 uint8_t thirty_minute_timer = 0;
 int shouldCollectEggs = 0;
-int shouldMakeSandwich = 1;
-ISR(TIMER1_OVF_vect)
-{
-    // TIMER interrupt:
-    // 16,000,000Hz/((2^16)*1024) = 0.2384185791Hz
-    // 4.194304s between each interrupt
-    if (five_minute_timer < 71)
-    {
-        five_minute_timer++;
-    }
-    else
-    {
-        five_minute_timer = 0;
-        thirty_minute_timer++;
-        shouldCollectEggs = 1;
-    }
-    if (thirty_minute_timer >= 6)
-    {
-        thirty_minute_timer = 0;
-        shouldMakeSandwich = 1;
-    }
-}
+int shouldMakeSandwich = 0;
+
 
 void make_sandwich(void)
 {
@@ -87,6 +67,10 @@ int main(void)
     sei();
     connect_and_return_to_home();
     controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_STARTUP_DELAY);
+    make_sandwich();
+    TCNT1H = 0x00;  // reset timer
+    TCNT1L = 0x00;  // 
+
 
     while (1)
     {
@@ -102,5 +86,28 @@ int main(void)
         {
             controller_wait(1);
         }
+    }
+}
+
+
+ISR(TIMER1_OVF_vect)
+{
+    // TIMER interrupt:
+    // 16,000,000Hz/((2^16)*1024) = 0.2384185791Hz
+    // 4.194304s between each interrupt
+    if (five_minute_timer < 71)
+    {
+        five_minute_timer++;
+    }
+    else
+    {
+        five_minute_timer = 0;
+        thirty_minute_timer++;
+        shouldCollectEggs = 1;
+    }
+    if (thirty_minute_timer >= 6)
+    {
+        thirty_minute_timer = 0;
+        shouldMakeSandwich = 1;
     }
 }
