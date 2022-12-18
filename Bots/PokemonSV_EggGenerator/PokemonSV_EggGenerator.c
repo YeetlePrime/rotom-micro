@@ -1,10 +1,10 @@
 #include "../../Framework/Controller.h"
+#include "Config.h"
 
 uint16_t five_minute_timer = 0;
 uint8_t thirty_minute_timer = 0;
 int shouldCollectEggs = 0;
 int shouldMakeSandwich = 0;
-
 
 void make_sandwich(void)
 {
@@ -17,7 +17,11 @@ void make_sandwich(void)
     controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_PICNIC_TABLE_INTERACTION_DELAY);
     controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_OPEN_SANDWICH_MENU_DELAY);
     // navigate to "Great Peanut Butter Sandwich"
-    controller_press_and_release_dpad(DPAD_DOWN, BUTTON_PRESS_DURATION, PokemonSV_NAVIGATION_DELAY);
+    for (int i = 0; i < EGG_POWER_SANDWICH_DOWN; i++)
+    {
+        controller_press_and_release_dpad(DPAD_DOWN, BUTTON_PRESS_DURATION, PokemonSV_NAVIGATION_DELAY);
+    }
+    if (EGG_POWER_SANDWICH_LOCATION == RIGHT) controller_press_and_release_dpad(DPAD_RIGHT, BUTTON_PRESS_DURATION, PokemonSV_NAVIGATION_DELAY);
     // select sandwich
     controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_SELECT_SANDWICH_DELAY);
     // select pick
@@ -68,9 +72,8 @@ int main(void)
     connect_and_return_to_home();
     controller_press_and_release_button(BUTTON_A, BUTTON_PRESS_DURATION, PokemonSV_STARTUP_DELAY);
     make_sandwich();
-    TCNT1H = 0x00;  // reset timer
-    TCNT1L = 0x00;  // 
-
+    TCNT1H = 0x00; // reset timer
+    TCNT1L = 0x00; //
 
     while (1)
     {
@@ -88,7 +91,6 @@ int main(void)
         }
     }
 }
-
 
 ISR(TIMER1_OVF_vect)
 {
